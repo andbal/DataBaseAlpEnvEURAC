@@ -89,7 +89,7 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
       
       # create date vector
       year <- substr(data_ts[,1],1,4); month <- substr(data_ts[,1],5,6); day <- substr(data_ts[,1],7,8)
-      date_chr <- paste(year, "-", month, "-", day, sep="")
+      date_chr <- paste0(year, "-", month, "-", day)
       date <- as.Date(x = date_chr, format = "%Y-%m-%d") 
       
       # create zoo object
@@ -109,12 +109,12 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
       hour <- substr(data_ts[,1],9,10); min  <- substr(data_ts[,1],11,12); sec <- substr(data_ts[,1],13,14)
       
       if (chron) {
-        date_chr <- paste(year, "-", month, "-", day, sep="")
-        time_chr <- paste(hour, ":", min, ":", sec, sep="")
+        date_chr <- paste0(year, "-", month, "-", day)
+        time_chr <- paste0(hour, ":", min, ":", sec)
         date <- chron(dates. = date_chr, times. = time_chr, 
                       format = c(date="y-m-d", time="h:m:s"))
       } else {
-        datetime <- paste(year, "-", month, "-", day, " ", hour, ":", min, ":", sec, sep="")
+        datetime <- paste0(year, "-", month, "-", day, " ", hour, ":", min, ":", sec)
         date <- as.POSIXct( strptime(x = datetime, format = "%Y-%m-%d %H:%M:%S") )
       }
     
@@ -129,7 +129,7 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
                                                            
         } else {
           data_zooreg <- zooreg(data = NA, order.by = seq( from = time(data_zoo)[1],to = tail(x = time(data_zoo),n = 1), 
-                                                           by = times( paste("00:",time_scale,":00",sep="") ) ) ) 
+                                                           by = times( paste0("00:",time_scale,":00") ) ) ) 
         }
       } else {
         data_zooreg <- zooreg(data = NA, order.by = seq( from = time(data_zoo)[1],to = tail(x = time(data_zoo),n = 1), 
@@ -213,9 +213,9 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
    
     # save data in output list
     if (multivar) {
-      data_list[[paste("st",st_id,"_",var_name,"_",var_time,sep="")]] <- data_zooreg
+      data_list[[paste0("st",st_id,"_",var_name,"_",var_time)]] <- data_zooreg
     } else {
-      data_list[[paste("st",st_id,sep="")]] <- data_zooreg
+      data_list[[paste0("st",st_id)]] <- data_zooreg
     }
 
   }
