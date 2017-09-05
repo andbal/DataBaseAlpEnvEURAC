@@ -210,13 +210,14 @@ dB_readZRX2station <- function(files, write_csv=FALSE, output_path, do.hourly=FA
       }
     
     }
+    else {
+      # return function output
+      return(station_data)
+    }
     
     if (saveRData)
     {
       save(list = "station_data", file = "data.RData")
     }
-    
-    # return function output
-    return(station_data)
 
   }
