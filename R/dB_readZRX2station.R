@@ -50,8 +50,8 @@ dB_readZRX2station <- function(files, write_csv=FALSE, output_path, do.hourly=FA
     }
     
     if (write_csv) {
-        write.csv(as.data.frame(empty_file), file = file.path(output_path, paste0("empty_file_list",".csv")), 
-                  quote=F, row.names = F, col.names = F)
+        write.table(as.data.frame(empty_file), file = file.path(output_path, paste0("empty_file_list",".csv")), 
+                    sep = ",", dec = ".", quote=F, row.names = F, col.names = F)
     } else {
         print(as.character(empty_file), quote=T)
     }
@@ -102,12 +102,12 @@ dB_readZRX2station <- function(files, write_csv=FALSE, output_path, do.hourly=FA
             }
             
             if ( all(as.integer(unique(out_metadata[[paste0("st",st)]][,"time_agg"])) <= 60) ) {
-              df <- data.frame(date = format(time(dummy), "%d/%m/%Y %H:%M:%S"), coredata(dummy))
-              write.csv(x = df, file =file.path(output_path, paste0(output_filename,".csv")),
-                                                row.names=F, col.names=T, sep=",", quote=F)
+              df <- data.frame(date = format(time(dummy), "%Y-%m-%d %H:%M:%S"), coredata(dummy))
+              write.table(x = df, file =file.path(output_path, paste0(output_filename,".csv")),
+                          row.names=F, col.names=T, sep=",", dec = ".", quote=F)
             } else {
-              write.zoo( x = dummy, file = file.path(output_path, paste0(output_filename,".csv")), 
-                         row.names=F, col.names=T, sep=",", quote=F, index.name="date") 
+              write.zoo(x = dummy, file = file.path(output_path, paste0(output_filename,".csv")), 
+                        row.names=F, col.names=T, sep=",", quote=F, index.name="date") 
             }
            
           }
@@ -180,12 +180,12 @@ dB_readZRX2station <- function(files, write_csv=FALSE, output_path, do.hourly=FA
           }
           
         if (as.integer(unique(metadata[,"time_agg"])) <= 60) {
-          df <- data.frame(date = format(time(dummy), "%d/%m/%Y %H:%M:%S"), coredata(dummy))
-          write.csv(x = df, file = file.path(output_path, paste0(output_filename,".csv")),
-                    row.names=F, col.names=T, sep=",", quote=F)
+          df <- data.frame(date = format(time(dummy), "%Y-%m-%d %H:%M:%S"), coredata(dummy))
+          write.table(x = df, file = file.path(output_path, paste0(output_filename,".csv")),
+                      row.names=F, col.names=T, sep=",", dec = ".", quote=F)
         } else {
-          write.zoo( x = dummy, file = file.path(output_path, paste0(output_filename,".csv")), 
-                     row.names=F, col.names=T, sep=",", quote=F, index.name="date")
+          write.zoo(x = dummy, file = file.path(output_path, paste0(output_filename,".csv")), 
+                    row.names=F, col.names=T, sep=",", quote=F, index.name="date")
         }
  
         }
@@ -200,12 +200,12 @@ dB_readZRX2station <- function(files, write_csv=FALSE, output_path, do.hourly=FA
     {
       if (length(files)==1 && multistation==FALSE) {
         filen <- paste0("meta_",stnames,".csv")
-        write.csv(out_metadata[[1]], file.path(output_path,filen), row.names=F, quote = F)
+        write.table(out_metadata[[1]], file.path(output_path,filen), row.names = F, quote = F, sep = ",", dec = ".")
       } else {
         for (m in names(out_metadata))
         {
           filen <- paste0("meta_",out_metadata[[m]][1],"_",m,".csv")
-          write.csv(out_metadata[[m]], file.path(output_path,filen), row.names=F, quote = F)
+          write.table(out_metadata[[m]], file.path(output_path,filen), row.names = F, quote = F, sep = ",", dec = ".")
         }
       }
     

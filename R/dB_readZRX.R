@@ -17,6 +17,8 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
 {
   # load zoo library
   # require("zoo")
+  if(do.hourly & !isTRUE(require(circular, quietly = T))) install.packages("circular")
+  library(circular)
   
   # open connection
   dummy    <- readLines(con=file, n = -1)
@@ -86,23 +88,23 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
     
     # daily data
     if (time_scale==60*24) {
-      
+
       # create date vector
       year <- substr(data_ts[,1],1,4); month <- substr(data_ts[,1],5,6); day <- substr(data_ts[,1],7,8)
       date_chr <- paste0(year, "-", month, "-", day)
-      date <- as.Date(x = date_chr, format = "%Y-%m-%d") 
-      
+      date <- as.Date(x = date_chr, format = "%Y-%m-%d")
+
       # create zoo object
-      data_zoo <- zoo( x = as.numeric(data_ts[,2])[!is.na(date) & c(diff(date)!=0,T)], 
+      data_zoo <- zoo( x = as.numeric(data_ts[,2])[!is.na(date) & c(diff(date)!=0,T)],
                        order.by = date[!is.na(date) & c(diff(date)!=0,T)] )
-      
+
       # create dummy regular zoo object
-      data_zooreg <- zooreg(data = NA, order.by = seq( from = time(data_zoo)[1],to = tail(x = time(data_zoo),n = 1), 
+      data_zooreg <- zooreg(data = NA, order.by = seq( from = time(data_zoo)[1],to = tail(x = time(data_zoo),n = 1),
                                                        by = 1) )
-      # combine both zoo objects 
+      # combine both zoo objects
       data_zooreg <- zoo(cbind(data_zoo, data_zooreg)$data_zoo)
-      
-    # no daily data  
+
+    # no daily data
     } else {
       # create datetime vector
       year <- substr(data_ts[,1],1,4); month <- substr(data_ts[,1],5,6); day <- substr(data_ts[,1],7,8)
@@ -147,8 +149,8 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
       # data quality check
       # relative air humidiy LF
       if (grepl("LF", var_name)) {
-        data_zooreg <- ifelse(data_zooreg > 100, 100, data_zooreg)
-        data_zooreg <- ifelse(data_zooreg < 0, 0, data_zooreg)
+        data_zooreg <- ifelse(data_zooreg > 100, NA, data_zooreg)
+        data_zooreg <- ifelse(data_zooreg < 0, NA, data_zooreg)
       }
       # air temperature LT
       if (grepl("LT", var_name)) {
@@ -197,15 +199,17 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
       if (time_scale<60)
       {
         # hourly aggregation for precipitation (sum)
-        if ( (grepl("N", var_name) && nchar(var_name)==1) ) # grepl('NN',var_name)
-        {
-          data_zooreg <- aggregate(x = data_zooreg, by = hour, FUN = function (x) {if (any(is.na(x))) { 
-          y <- NA } else { y <- sum(x) } 
-          return(y)
-          } )
+        if ( (grepl("N", var_name) && nchar(var_name)==1) ) { # grepl('NN',var_name)
+        # data_zooreg <- aggregate(x = data_zooreg, by = hour, FUN = function (x) {if (any(is.na(x))) {
+        #                 y <- NA } else { y <- sum(x) }
+        #                 return(y) } )
+            data_zooreg <- aggregate(x = data_zooreg, by = hour, FUN = function (x) {return(ifelse(all(is.na(x)),NA,sum(x,na.rm = T)) )} ) 
+        } else if( (grepl("WR", var_name) && nchar(var_name)==2) ) {
+            data_zooreg <- aggregate(x = data_zooreg, by = hour,
+                                     FUN = function (x) {return( ifelse(all(is.na(x)),NA,mean.circular( circular(x, type="angles", units="degrees",modulo="2pi", template='geographics'),na.rm = T )) )} )
         } else {
-        # hourly aggregation for other variables (mean)
-          data_zooreg <- aggregate(x = data_zooreg, by=hour, FUN=mean, na.rm=TRUE)
+          # hourly aggregation for other variables (mean)
+            data_zooreg <- aggregate(x = data_zooreg, by=hour, FUN=mean, na.rm=TRUE)
         }
         if (chron) data_zooreg <- zoo(coredata(data_zooreg),  chron(time(data_zooreg)/24))
       }
