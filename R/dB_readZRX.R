@@ -20,14 +20,16 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
   if(do.hourly & !isTRUE(require(circular, quietly = T))) install.packages("circular")
   library(circular)
   
-  # open connection
-  dummy    <- readLines(con=file, n = -1)
+  # open connection and remove empty lines
+  dummy <- readLines(con=file, n = -1)
+  dummy <- dummy[-c(which(dummy==""))] # to check in case of multistations in single file
   # get begining of meta data (file contains data for several stations)
-  start_st <- c(grep(substr(dummy[1],1,22),dummy),length(dummy)+1)
+  # Use fixed=TRUE to avoid interpretation as regular expression of some chars like '*'
+  start_st <- c(grep(substr(dummy[1],1,22),dummy,fixed = T),length(dummy)+1)
   
   # dummies for data and metadata
   data_list <- list()
-  meta_mat  <- c()
+  meta_mat <- c()
   
   # loop over start_st
   for (i in 1:(length(start_st)-1))
