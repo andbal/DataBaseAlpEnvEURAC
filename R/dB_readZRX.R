@@ -46,7 +46,7 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
     st_id <- strsplit( x = header[ grep("#SNAME",header) ], split = ";")[[1]][3]
     st_id <- substr(st_id, 5, nchar(st_id))
     
-    rexchange <- strsplit( x = header[ grep("#REXCHANGE",header) ], split = ";")[[1]][1]
+    # rexchange <- strsplit( x = header[ grep("#REXCHANGE",header) ], split = ";")[[1]][1]
     #st_id <- substr(rexchange, 11, 14)
     #rexchange <- substr(rexchange, 11, nchar(rexchange))
     
