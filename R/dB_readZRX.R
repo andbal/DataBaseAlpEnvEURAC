@@ -22,7 +22,7 @@ dB_readZRX <- function(file, do.hourly=FALSE, do.quality=FALSE, chron=TRUE, mult
   
   # open connection and remove empty lines
   dummy <- readLines(con=file, n = -1)
-  dummy <- dummy[-c(which(dummy==""))] # to check in case of multistations in single file
+  if(length(which(dummy==""))!=0) dummy <- dummy[-c(which(dummy==""))] # to check in case of multistations in single file
   # get begining of meta data (file contains data for several stations)
   # Use fixed=TRUE to avoid interpretation as regular expression of some chars like '*'
   start_st <- c(grep(substr(dummy[1],1,22),dummy,fixed = T),length(dummy)+1)
